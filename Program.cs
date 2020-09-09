@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Globalization;
+using System.IO;
+using CsvHelper;
 
 namespace FirstBankOfSuncoast
 {
@@ -32,36 +35,14 @@ namespace FirstBankOfSuncoast
         }
         static void Main(string[] args)
         {
-            var transactions = new List<Transaction>()
+            var transactions = new List<Transaction>();
+            if (File.Exists("transactions.csv"))
             {
-                new Transaction()
-                {
-                    Amount = 50,
-                    Type = "Deposit",
-                    Account = "Checking"
-                },
+                var fileReader = new StreamReader("transactions.csv");
+                var csvReader = new CsvReader(fileReader, CultureInfo.InvariantCulture);
+                transactions = csvReader.GetRecords<Transaction>().ToList();
+            }
 
-                new Transaction()
-                {
-                    Amount = 60,
-                    Type = "Deposit",
-                    Account = "Savings",
-                },
-
-                new Transaction()
-                {
-                    Amount = 5,
-                    Type = "Withdraw",
-                    Account = "Savings"
-                },
-
-                new Transaction()
-               {
-                    Amount = 5,
-                    Type = "Withdraw",
-                    Account = "Checking"
-                },
-            };
 
             var mainMenu = true;
 
@@ -219,6 +200,12 @@ namespace FirstBankOfSuncoast
                         Console.WriteLine($"{choice} isn't valid. Please re-choose");
                         break;
                 }
+
+                var fileWriter = new StreamWriter("transactions.csv");
+                var csvWriter = new CsvWriter(fileWriter, CultureInfo.InvariantCulture);
+                csvWriter.WriteRecords(transactions);
+
+                fileWriter.Close();
 
             }
         }
